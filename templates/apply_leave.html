@@ -1,0 +1,53 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply Leave</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+  <h2 class="mb-4">Apply for Leave</h2>
+  <form id="leaveForm">
+    <div class="mb-3">
+      <label for="studentId" class="form-label">Student ID</label>
+      <input type="number" class="form-control" id="studentId" required>
+    </div>
+    <div class="mb-3">
+      <label for="reason" class="form-label">Reason</label>
+      <textarea class="form-control" id="reason" rows="3" required></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="fromDate" class="form-label">From Date</label>
+      <input type="date" class="form-control" id="fromDate" required>
+    </div>
+    <div class="mb-3">
+      <label for="toDate" class="form-label">To Date</label>
+      <input type="date" class="form-control" id="toDate" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Leave</button>
+  </form>
+</div>
+<script>
+  document.getElementById("leaveForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const data = {
+      student_id: parseInt(document.getElementById("studentId").value),
+      reason: document.getElementById("reason").value,
+      from_date: document.getElementById("fromDate").value,
+      to_date: document.getElementById("toDate").value
+    };
+    fetch("/apply_leave", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+      .then(res => res.text())
+      .then(msg => alert(msg))
+      .catch(err => alert("Error submitting leave."));
+  });
+</script>
+</body>
+</html>

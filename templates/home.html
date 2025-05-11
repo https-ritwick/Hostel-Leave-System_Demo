@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/resource/css/main_style.css">
+    <meta charset="UTF-8"> 
+    <title>{{.WebsiteTitle}} </title>
+</head>
+<body>
+    <h1>{{.HomePageHeading}}</h1>
+    {{if .WelcomeMessage}}
+        <div class="welcomemessage">
+            {{.WelcomeMessage}}
+        </div>
+    {{end}}
+
+</body>
+</html>

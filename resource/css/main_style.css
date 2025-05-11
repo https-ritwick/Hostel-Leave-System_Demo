@@ -1,0 +1,10 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color:burlywood;
+}
+.welcomemessage {
+    color: rgb(43, 86, 226);
+    margin-bottom: 200px;
+    font-size: large;
+}
