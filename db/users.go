@@ -53,7 +53,7 @@ func PrintUserDetails() {
 	}
 }
 
-func PrintUserDetailsForSelectedUserName(userName string) (a string, b string) {
+func PrintUserDetailsForSelectedUserName(userName string) {
 	query := "SELECT id, name, email, validflag FROM user_details where name like ?"
 	rows, err := Con.Query(query, "%"+userName+"%")
 	if err != nil {
@@ -66,5 +66,4 @@ func PrintUserDetailsForSelectedUserName(userName string) (a string, b string) {
 		rows.Scan(&id, &name, &email, &validflag)
 		fmt.Println("Rows ID:", id, " - ", name, " - ", email, " - ", validflag)
 	}
-	return name, email
 }
