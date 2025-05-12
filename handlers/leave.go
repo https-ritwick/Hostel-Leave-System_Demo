@@ -4,7 +4,6 @@ import (
 	"DynamicWebsiteProject/db"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -20,37 +19,46 @@ type LeaveRequest struct {
 // GET: Serve HTML page
 // POST: Handle form submission
 func ApplyLeaveHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		http.ServeFile(w, r, "templates/apply_leave.html")
-		return
-	}
-
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// DEBUG: Print raw request body
-	body, _ := io.ReadAll(r.Body)
-	fmt.Println("Received JSON:", string(body))
-
-	var req LeaveRequest
-	if err := json.Unmarshal(body, &req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		fmt.Println("JSON decode error:", err)
+	session, _ := store.Get(r, "ajaxjwtdemo.com")
+	username, ok := session.Values["username"].(string)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	query := `INSERT INTO leave_requests (student_id, reason, from_date, to_date) VALUES (?, ?, ?, ?)`
-	_, err := db.Con.Exec(query, req.StudentID, req.Reason, req.FromDate, req.ToDate)
+	// Fetch student ID
+	profile, err := db.FetchStudentProfile(username)
 	if err != nil {
-		http.Error(w, "Error applying leave", http.StatusInternalServerError)
-		fmt.Println("DB insert error:", err)
+		http.Error(w, "Could not fetch profile", http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Leave request submitted successfully"))
+	// Parse form data
+	err = r.ParseForm()
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
+	reason := r.FormValue("reason")
+	fromDate := r.FormValue("from_date")
+	toDate := r.FormValue("to_date")
+
+	// Insert into DB
+	query := `INSERT INTO leave_requests (student_id, reason, from_date, to_date) VALUES (?, ?, ?, ?)`
+	_, err = db.Con.Exec(query, profile.ID, reason, fromDate, toDate)
+	if err != nil {
+		http.Error(w, "Failed to apply for leave", http.StatusInternalServerError)
+		fmt.Println("Leave insert error:", err)
+		return
+	}
+
+	// Redirect back to dashboard
+	http.Redirect(w, r, "/student_dashboard", http.StatusSeeOther)
 }
 
 // GET /view_leave?status=Pending

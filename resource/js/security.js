@@ -8,16 +8,16 @@ document.addEventListener("DOMContentLoaded", function () {
             const username = loginForm.username.value;
             const password = loginForm.password.value;
             const nonce = loginForm.nonce.value;
+            const role = loginForm.role.value;
 
             const passHash = await sha512(password);
             const finalHash = await sha512(passHash + nonce);
-
             loginForm.password.value = finalHash;
 
             const response = await fetch("/login_check", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password: finalHash, nonce })
+                body: JSON.stringify({ username, password: finalHash, nonce, role })
             });
 
             if (response.status === 200) {
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (result.token) {
                     localStorage.setItem("jwt", result.token);
                     document.cookie = `token=${result.token}; path=/; SameSite=Strict`;
-                    window.location.href = "/home";
+                    window.location.href = role === "warden" ? "/leave_handle" : "/student_dashboard";
                 } else {
                     showError();
                 }
@@ -43,21 +43,22 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ✅ Register Form Handling
+    // Register Form Handling
     const registerForm = document.getElementById("registerForm");
     if (registerForm) {
         registerForm.addEventListener("submit", async function (e) {
-            e.preventDefault(); // 🔴 this was missing
+            e.preventDefault();
 
             const passwordInput = registerForm.querySelector("#password");
             const password = passwordInput.value;
 
             const hashedPassword = await sha512(password);
-
-            console.log("Original password:", password);
-            console.log("Hashed password:", hashedPassword);
-
             passwordInput.value = hashedPassword;
+
+            // Optional: Debug values before submit
+            // console.log("Room:", registerForm.roomnumber.value);
+            // console.log("Contact:", registerForm.contact.value);
+            // console.log("Address:", registerForm.address.value);
 
             registerForm.submit(); // manually submit after hashing
         });

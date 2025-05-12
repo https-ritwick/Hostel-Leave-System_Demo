@@ -24,35 +24,41 @@ func init() {
 	if len(handlers.JWTKey) == 0 {
 		log.Fatal("JWT_SECRET not set in .env file")
 	}
+
 	connectionString = os.Getenv("CONN")
 	if connectionString == "" {
 		log.Fatal("DB Connection not set in .env file")
 	}
 }
+
 func main() {
 	err := db.InitConnection(connectionString)
 	if err != nil {
-		fmt.Println("Error conecting DB server:", err)
+		fmt.Println("Error connecting DB server:", err)
 		return
 	}
 	defer db.Con.Close()
 
+	// Static file handler
 	http.Handle("/resource/", http.StripPrefix("/resource/", http.FileServer(http.Dir("resource"))))
 
-	http.HandleFunc("/", handlers.AuthMiddlewareCookie(handlers.ApplyLeaveHandler))
-	//http.HandleFunc("/quiz", handlers.AuthMiddlewareCookie(handlers.QuizPageHandler))
+	// Public routes
 	http.HandleFunc("/register", handlers.RegisterHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/login_check", handlers.LoginCheckHandler)
-	http.HandleFunc("/apply_leave", handlers.AuthMiddlewareCookie(handlers.ApplyLeaveHandler))
-	http.HandleFunc("/view_leave", handlers.AuthMiddlewareCookie(handlers.ViewLeaveHandler))
-	http.HandleFunc("/update_leave_status", handlers.AuthMiddlewareCookie(handlers.UpdateLeaveStatusHandler))
-	http.HandleFunc("/leave_handle", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "templates/leave_handle.html")
-	})
 
-	fmt.Println("Server started at :8000")
-	err = http.ListenAndServe(":8000", nil) // Start the WEB Server AT PORT 8000
+	// Authenticated routes
+	http.HandleFunc("/", handlers.AuthMiddlewareCookie(handlers.ApplyLeaveHandler))
+	http.HandleFunc("/apply_leave", handlers.AuthMiddlewareCookie(handlers.ApplyLeaveHandler))
+	http.HandleFunc("/update_leave_status", handlers.AuthMiddlewareCookie(handlers.UpdateLeaveStatusHandler))
+	http.HandleFunc("/student_dashboard", handlers.AuthMiddlewareCookie(handlers.StudentDashboardHandler))
+	http.HandleFunc("/logout", handlers.LogoutHandler)
+
+	// Warden-only protected route
+	http.HandleFunc("/leave_handle", handlers.LeaveHandleHandler)
+
+	fmt.Println("Server started at :localhost:8000/login")
+	err = http.ListenAndServe(":8000", nil)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
