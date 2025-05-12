@@ -43,12 +43,12 @@ func main() {
 	http.Handle("/resource/", http.StripPrefix("/resource/", http.FileServer(http.Dir("resource"))))
 
 	// Public routes
+	http.HandleFunc("/", handlers.LoginHandler)
 	http.HandleFunc("/register", handlers.RegisterHandler)
 	http.HandleFunc("/login", handlers.LoginHandler)
 	http.HandleFunc("/login_check", handlers.LoginCheckHandler)
 
 	// Authenticated routes
-	http.HandleFunc("/", handlers.AuthMiddlewareCookie(handlers.ApplyLeaveHandler))
 	http.HandleFunc("/apply_leave", handlers.AuthMiddlewareCookie(handlers.ApplyLeaveHandler))
 	http.HandleFunc("/update_leave_status", handlers.AuthMiddlewareCookie(handlers.UpdateLeaveStatusHandler))
 	http.HandleFunc("/student_dashboard", handlers.AuthMiddlewareCookie(handlers.StudentDashboardHandler))
@@ -61,7 +61,7 @@ func main() {
 	// Warden-only protected route
 	http.HandleFunc("/leave_handle", handlers.LeaveHandleHandler)
 
-	fmt.Println("Server started at :localhost:8000/login")
+	fmt.Println("Server started at :http://localhost:8000/login")
 	err = http.ListenAndServe(":8000", nil)
 	if err != nil {
 		fmt.Println("Error starting server:", err)

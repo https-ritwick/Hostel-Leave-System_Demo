@@ -56,6 +56,7 @@ type StudentDashboardData struct {
 	ContactNumber string
 	Gender        string
 	LeaveHistory  []db.LeaveEntry
+	Today         string
 }
 
 // -------------------- TEMPLATES --------------------
@@ -309,7 +310,7 @@ func StudentDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	for _, l := range leaveHistory {
 		fmt.Println("LEAVE STATUS:", l.Status)
 	}
-
+	//today := time.Now().Format("2006-01-02")
 	data := StudentDashboardData{
 		WebsiteTitle:  "Student Dashboard",
 		StudentName:   profile.Name,
@@ -317,6 +318,7 @@ func StudentDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		ContactNumber: profile.Contact,
 		Gender:        profile.Gender,
 		LeaveHistory:  leaveHistory,
+		Today:         time.Now().Format("2006-01-02"),
 	}
 
 	tmpl, err := template.ParseFiles("templates/student_dashboard.html")
