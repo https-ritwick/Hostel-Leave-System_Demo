@@ -52,6 +52,10 @@ func main() {
 	http.HandleFunc("/apply_leave", handlers.AuthMiddlewareCookie(handlers.ApplyLeaveHandler))
 	http.HandleFunc("/update_leave_status", handlers.AuthMiddlewareCookie(handlers.UpdateLeaveStatusHandler))
 	http.HandleFunc("/student_dashboard", handlers.AuthMiddlewareCookie(handlers.StudentDashboardHandler))
+	http.HandleFunc("/warden_dashboard", handlers.AuthMiddlewareCookie(handlers.WardenDashboardHandler))
+	http.HandleFunc("/view_leave", handlers.AuthMiddlewareCookie(handlers.ViewLeaveHandler))
+	http.HandleFunc("/view_all_leaves", handlers.AuthMiddlewareCookie(handlers.ViewAllLeavesHandler))
+
 	http.HandleFunc("/logout", handlers.LogoutHandler)
 
 	// Warden-only protected route

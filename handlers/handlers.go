@@ -168,9 +168,17 @@ func LoginCheckHandler(httpWriter http.ResponseWriter, r *http.Request) {
 	}
 
 	httpWriter.Header().Set("Content-Type", "application/json")
+
+	redirectPath := "/student_dashboard"
+	if role == "warden" {
+		redirectPath = "/warden_dashboard"
+	}
+
 	json.NewEncoder(httpWriter).Encode(map[string]string{
-		"token": tokenString,
+		"token":         tokenString,
+		"redirect_path": redirectPath,
 	})
+
 }
 
 // -------------------- RESTRICTED WARDEN PAGE --------------------
@@ -298,6 +306,9 @@ func StudentDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to load leave history", http.StatusInternalServerError)
 		return
 	}
+	for _, l := range leaveHistory {
+		fmt.Println("LEAVE STATUS:", l.Status)
+	}
 
 	data := StudentDashboardData{
 		WebsiteTitle:  "Student Dashboard",
@@ -367,4 +378,23 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		"Nonce":             nonce,
 	}
 	templateRenderWithCustomeDataMap(w, mapData, "login")
+}
+
+// -------------------- WARDEN DASHBOARD HANDLER --------------------
+
+func WardenDashboardHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "ajaxjwtdemo.com")
+	role, ok := session.Values["role"].(string)
+	if !ok || role != "warden" {
+		http.Error(w, "Unauthorized access", http.StatusForbidden)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("templates/warden_dashboard.html")
+	if err != nil {
+		http.Error(w, "Template error", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, nil)
 }

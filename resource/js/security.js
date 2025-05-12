@@ -25,7 +25,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (result.token) {
                     localStorage.setItem("jwt", result.token);
                     document.cookie = `token=${result.token}; path=/; SameSite=Strict`;
-                    window.location.href = role === "warden" ? "/leave_handle" : "/student_dashboard";
+
+                    // ✅ Use server-defined redirect path
+                    const redirectPath = result.redirect_path || "/student_dashboard";
+                    window.location.href = redirectPath;
                 } else {
                     showError();
                 }
@@ -54,11 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const hashedPassword = await sha512(password);
             passwordInput.value = hashedPassword;
-
-            // Optional: Debug values before submit
-            // console.log("Room:", registerForm.roomnumber.value);
-            // console.log("Contact:", registerForm.contact.value);
-            // console.log("Address:", registerForm.address.value);
 
             registerForm.submit(); // manually submit after hashing
         });

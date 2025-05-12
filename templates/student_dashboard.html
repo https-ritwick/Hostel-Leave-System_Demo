@@ -25,7 +25,7 @@
       <a href="/logout" class="btn btn-danger btn-sm mt-1">Logout</a>
     </div>
   </nav>
-
+  
   <div class="container py-5">
     <div class="row">
       <div class="col-md-6">
@@ -68,9 +68,9 @@
                 <td>{{.FromDate}}</td>
                 <td>{{.ToDate}}</td>
                 <td>
-                  {{if eq .Status "approved"}}
+                  {{if eq .Status "Approved"}}
                     <span class="badge bg-success">Approved</span>
-                  {{else if eq .Status "rejected"}}
+                  {{else if eq .Status "Rejected"}}
                     <span class="badge bg-danger">Rejected</span>
                   {{else}}
                     <span class="badge bg-secondary">Pending</span>
