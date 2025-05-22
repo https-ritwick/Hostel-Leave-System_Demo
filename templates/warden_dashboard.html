@@ -15,15 +15,20 @@
       <img src="/resource/images/GGSIU_logo.svg.png" alt="Logo" width="50" height="50" class="me-2">
       Guru Gobind Singh Indraprastha University, East Delhi Campus
     </a>
-    <div class="ms-auto">
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="darkModeSwitch" />
+      </div>
       <a href="/logout" class="btn btn-danger">Logout</a>
     </div>
   </nav>
-
   <div class="dashboard-container">
     <h3 class="mb-4 text-center">Warden Dashboard - Leave Requests</h3>
 
-    <h5>Pending Requests</h5>
+    <h5 class="mb-3">
+      Pending Requests 
+    </h5>
+
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -41,6 +46,15 @@
     </table>
 
     <h5 class="mt-5">All Requests</h5>
+    <input type="text" class="form-control mb-2" id="searchInput" placeholder="Search by Student ID or Reason">
+    <script>
+      document.getElementById('searchInput').addEventListener('input', function () {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('#allTable tr').forEach(row => {
+          row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+        });
+      });
+    </script>
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -80,11 +94,8 @@
             <td>${row.to_date}</td>
             <td>
               ${includeAction
-                ? `<select onchange="updateStatus(${row.id}, this.value)">
-                    <option value="">Select</option>
-                    <option value="Approved">Approve</option>
-                    <option value="Rejected">Reject</option>
-                  </select>`
+                ? `<button class="btn btn-success btn-sm me-2" onclick="updateStatus(${row.id}, 'Approved')">Approve</button>
+                   <button class="btn btn-danger btn-sm" onclick="updateStatus(${row.id}, 'Rejected')">Reject</button>`
                 : row.status}
             </td>
           `;
@@ -115,7 +126,18 @@
     await loadTable("Pending", "pendingTable", true);
     await loadTable("Approved", "allTable", false, false);
     await loadTable("Rejected", "allTable", false, true);
+      document.getElementById("darkModeSwitch").addEventListener("change", function () {
+    document.body.classList.toggle("bg-dark");
+    document.body.classList.toggle("text-white");
+
+    // Optional: darken tables, cards, etc.
+    document.querySelectorAll(".card, .table").forEach(el => {
+      el.classList.toggle("bg-dark");
+      el.classList.toggle("text-white");
+    });
   });
+  });
+  
 </script>
 <footer class="custom-footer">
     <div>
